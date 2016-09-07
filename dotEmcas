@@ -1,0 +1,142 @@
+(add-to-list `load-path "~/.emacs.d/evil-20160619.2253")
+(require `evil)
+(evil-mode 1)
+
+(show-paren-mode 1)
+
+
+(add-to-list 'load-path "/home/xuyang/helm")
+(require 'helm-config)
+(helm-mode 1)
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+
+
+(add-to-list 'load-path "/home/xuyang/yasnippet")
+(require 'yasnippet)
+(setq yas-snippet-dirs '("/home/xuyang/yasnippet/snippets"))
+(yas-global-mode 1)
+
+
+
+;;输入法
+(add-to-list 'load-path "~/local/share/emacs/site-lisp/eim")
+(autoload 'eim-use-package "eim" "Another emacs input method")
+;; Tooltip 暂时还不好用
+(setq eim-use-tooltip nil)
+
+(register-input-method
+ "eim-wb" "euc-cn" 'eim-use-package
+ "五笔" "汉字五笔输入法" "wb.txt")
+(register-input-method
+ "eim-py" "euc-cn" 'eim-use-package
+ "拼音" "汉字拼音输入法" "py.txt")
+
+;; 用 ; 暂时输入英文
+(require 'eim-extra)
+(global-set-key ";" 'eim-insert-ascii)
+
+(global-linum-mode t)
+
+(load (expand-file-name "~/quicklisp/slime-helper.el"))                                                            
+;; Replace "sbcl" with the path to your implementation                                                             
+
+(add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
+(add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))                                                                   
+(setq inferior-lisp-program "sbcl")             
+
+
+;;for markdown-mode
+(add-to-list 'load-path "~/markdown-mode")
+(autoload 'markdown-mode "markdown-mode"
+   "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.rmd\\'" . markdown-mode))
+
+(autoload 'gfm-mode "markdown-mode"
+   "Major mode for editing GitHub Flavored Markdown files" t)
+(add-to-list 'auto-mode-alist '("README\\.md\\'" . gfm-mode))
+
+(setq markdown-command "pandoc")
+
+(setq yank-pop-change-selection t)
+
+;;my global key binding
+;;duplicate the line
+
+;;(global-set-key "\C-c\C-y" "\C-a\C-@\C-n\M-w\C-y")
+
+(defun duplicate-line()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (move-beginning-of-line 1)
+)
+;;(global-set-key (kbd "C-c C-v") 'duplicate-line)
+
+(defun select-multi-line (my-begin-line my-end-line)
+  "select multiple lines by line number"
+  (interactive "nbegin line number to select:\nn(%s-):end line number:")
+  (let ((cur-line (line-number-at-pos)))
+       (beginning-of-line (+ 1 (- my-begin-line cur-line)))
+       (set-mark (point))
+       ;;(make-marker)
+       (beginning-of-line (+ 2 (- my-end-line my-begin-line)))))
+       ;;(kill-region (mark) (point))
+       ;;(yank)
+       ;;(message "line %d - %d is copied" my-begin-line my-end-line)))
+
+(global-set-key (kbd "C-c m") 'select-multi-line)
+
+(defun paste-lines (target-line)
+   "paste multiple lines to target line"
+  (interactive "ntarget line to paste:")
+  (let ((cur-line (line-number-at-pos)))
+       (beginning-of-line (+ 1 (- target-line cur-line)))
+       (yank)))
+
+;;(global-set-key (kbd "C-c C-m") 'paste-lines)
+  
+(defun commet-hole-line (&optional arg)
+  "comment the line"
+  (interactive "P")
+  (let ((beg (line-beginning-position))
+	(end (+ 1 (line-end-position arg))))
+    (comment-or-uncomment-region beg end))
+  )
+
+(defun copy-line (&optional arg)
+  "Save current line into Kill-Ring without mark the line"
+  (interactive "P")
+  (let ((beg (line-beginning-position))
+	(end (line-end-position arg)))
+    (copy-region-as-kill beg end))
+  )
+
+
+(defun copy-word (&optional arg)
+  "Copy words at point"
+  (interactive "P")
+  (let ((beg (progn (if (looking-back "[a-zA-Z0-9]" 1) (backward-word 1)) (point)))
+	(end (progn (forward-word arg) (point))))
+    (copy-region-as-kill beg end))
+  )
+
+
+(defun copy-paragraph (&optional arg)
+  "Copy paragraphes at point"
+  (interactive "P")
+  (let ((beg (progn (backward-paragraph 1) (point)))
+	(end (progn (forward-paragraph arg) (point))))
+    (copy-region-as-kill beg end))
+  )
+
+(global-set-key (kbd "C-c l") 'copy-line)
+(global-set-key (kbd "C-c w") 'copy-word)
+(global-set-key (kbd "C-c p") 'copy-paragraph)
+(global-set-key (kbd "C-c c") 'commet-hole-line)
+
+;;for translation
+(load "~/translation.elisp")

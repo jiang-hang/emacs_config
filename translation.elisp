@@ -1,0 +1,63 @@
+(defvar *trans-set*)
+
+(defvar *trans-set-file* "~/trans_set/fourcolor.elisp")
+
+(load *trans-set-file*)
+
+(defun reload-trans-set ()
+   (load *trans-set-file*)) 
+
+(defun save-trans-set (filename)
+  (let ((outstring "(setf *trans-set* `(\n"))
+    (dolist (it *trans-set*)
+      (setf outstring
+	    (concatenate 'string outstring
+			 "(\"" (regexp-quote (car it)) "\" " "."
+			 " \"" (regexp-quote (cdr it)) "\")" "\n")))
+    (setf outstring
+	  (concatenate 'string outstring
+		       "))\n"))
+    (write-region outstring nil filename)))
+    
+
+(defun trans-line (&optional arg)
+  (interactive "P")
+  (let ((beg (point))
+	(end (progn (forward-char arg) (point))))
+    (if (use-region-p)
+	(setq beg (region-beginning)
+	      end (region-end)))
+    (dolist (ss *trans-set*)
+      (replace-regexp (car ss) (cdr ss) nil beg end)
+      )
+    )
+  )
+
+;replace-regexp wrapper , save the replace after it is done
+
+(defun mreplace-regexp (regexp to-string &optional delimited start end backward)
+  (declare (interactive-only
+	    "use `re-search-forward' and `replace-match' instead."))
+  (interactive
+   (let ((common
+	  (query-replace-read-args
+	   (concat "Replace"
+		   (if current-prefix-arg
+		       (if (eq current-prefix-arg '-) " backward" " word")
+		     "")
+		   " regexp"
+		   (if (use-region-p) " in region" ""))
+	   t)))
+     (list (nth 0 common) (nth 1 common) (nth 2 common)
+	   (if (use-region-p) (region-beginning))
+	   (if (use-region-p) (region-end))
+	   (nth 3 common))))
+  (perform-replace regexp to-string nil t delimited nil nil start end backward)
+  (unless (assoc regexp *trans-set*) 
+     (when (y-or-n-p "save the replace pattern?")
+       (nconc *trans-set* (list (cons regexp to-string)))
+       (save-trans-set  *trans-set-file*)
+       ))
+  )
+
+(global-set-key (kbd "C-o") 'trans-line)
