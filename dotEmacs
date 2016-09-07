@@ -139,4 +139,4 @@
 (global-set-key (kbd "C-c c") 'commet-hole-line)
 
 ;;for translation
-(load "~/translation.elisp")
+(load "~/emacs_config/translation.elisp")
