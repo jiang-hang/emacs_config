@@ -1,6 +1,6 @@
 (defvar *trans-set*)
 
-(defvar *trans-set-file* "~/trans_set/fourcolor.elisp")
+(defvar *trans-set-file* "~/emacs_config/trans_set/fourcolor.elisp")
 
 (load *trans-set-file*)
 
