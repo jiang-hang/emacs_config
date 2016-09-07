@@ -5,7 +5,15 @@
 (load *trans-set-file*)
 
 (defun reload-trans-set ()
-   (load *trans-set-file*)) 
+   (interactive)
+   (load *trans-set-file*))
+
+(defun load-trans-set (file)
+  "Load the Lisp file named FILE."
+  ;; This is a case where .elc and .so/.dll make a lot of sense.
+  (interactive (list (read-file-name "Load trans-set file: " nil nil)))
+   (setf *trans-set-file* (expand-file-name file))
+    (load (expand-file-name file) nil nil t))
 
 (defun save-trans-set (filename)
   (let ((outstring "(setf *trans-set* `(\n"))
