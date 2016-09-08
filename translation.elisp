@@ -34,7 +34,11 @@
 	(end (progn (forward-char arg) (point))))
     (if (use-region-p)
 	(setq beg (region-beginning)
-	      end (region-end)))
+	      end (- (region-end) 1))
+      (progn 
+	(unless arg
+	  (setq beg (line-beginning-position)
+		end (line-end-position)))))
     (dolist (ss *trans-set*)
       (replace-regexp (car ss) (cdr ss) nil beg end)
       )

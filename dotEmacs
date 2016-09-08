@@ -4,6 +4,9 @@
 
 (show-paren-mode 1)
 
+(add-to-list `load-path "~/.emacs.d/elpa/company-0.9.0")
+(require `company)
+(add-hook 'after-init-hook 'global-company-mode)
 
 (add-to-list 'load-path "/home/xuyang/helm")
 (require 'helm-config)
@@ -137,6 +140,9 @@
 (global-set-key (kbd "C-c w") 'copy-word)
 (global-set-key (kbd "C-c p") 'copy-paragraph)
 (global-set-key (kbd "C-c c") 'commet-hole-line)
+
+(add-to-list 'auto-mode-alist '("\\.elisp\\'" . emacs-lisp-mode))
+(add-to-list 'auto-mode-alist '("\\.lisp\\'" . slime))
 
 ;;for translation
 (load "~/emacs_config/translation.elisp")
