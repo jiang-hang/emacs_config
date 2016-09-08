@@ -28,6 +28,11 @@
     (write-region outstring nil filename)))
     
 
+;使用方法
+;1. 不加参数，直接C-o ，对当前行进行替换
+;2. 添加数字参数， C-u <num> C-o ， 对从光标开始的<num>个字符进行替换
+;3. 选择一个区域，然后在使用C-o ， 对区域中的内容进行替换
+
 (defun trans-line (&optional arg)
   (interactive "P")
   (let ((beg (point))
