@@ -1,6 +1,15 @@
+(require 'package)
+(setq package-archives
+      '(("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+	("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+	("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
+(package-initialize)
+
+
 (add-to-list `load-path "~/.emacs.d/evil-20160619.2253")
 (require `evil)
-(evil-mode 1)
+
+(setf eww-search-prefix "http://www.ask.com/web?qsrc=0&o=0&l=dir&qo=homepageSearchBox&q=")
 
 (show-paren-mode 1)
 
@@ -21,12 +30,17 @@
 (yas-global-mode 1)
 
 
+;(add-to-list 'load-path "/home/xuyang/chinese-pyim")
+;(add-to-list 'load-path "/home/xuyang/chinese-pyim-greatdict")
 
-;;输入法
+
+
+
+;输入法
 (add-to-list 'load-path "~/local/share/emacs/site-lisp/eim")
 (autoload 'eim-use-package "eim" "Another emacs input method")
 ;; Tooltip 暂时还不好用
-(setq eim-use-tooltip nil)
+;(setq eim-use-tooltip nil)
 
 (register-input-method
  "eim-wb" "euc-cn" 'eim-use-package
@@ -38,6 +52,8 @@
 ;; 用 ; 暂时输入英文
 (require 'eim-extra)
 (global-set-key ";" 'eim-insert-ascii)
+
+(setq default-input-method "eim-py")
 
 (global-linum-mode t)
 
@@ -141,8 +157,12 @@
 (global-set-key (kbd "C-c p") 'copy-paragraph)
 (global-set-key (kbd "C-c c") 'commet-hole-line)
 
+(global-set-key (kbd "C-z") 'evil-mode)
+
 (add-to-list 'auto-mode-alist '("\\.elisp\\'" . emacs-lisp-mode))
 (add-to-list 'auto-mode-alist '("\\.lisp\\'" . slime))
 
 ;;for translation
 (load "~/emacs_config/translation.elisp")
+
+
