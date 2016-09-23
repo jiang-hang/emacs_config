@@ -12,6 +12,8 @@
 (setf eww-search-prefix "http://www.ask.com/web?qsrc=0&o=0&l=dir&qo=homepageSearchBox&q=")
 
 (show-paren-mode 1)
+(column-number-mode 1)
+(line-number-mode 1)
 
 (add-to-list `load-path "~/.emacs.d/elpa/company-0.9.0")
 (require `company)
@@ -28,13 +30,6 @@
 (require 'yasnippet)
 (setq yas-snippet-dirs '("/home/xuyang/yasnippet/snippets"))
 (yas-global-mode 1)
-
-
-;(add-to-list 'load-path "/home/xuyang/chinese-pyim")
-;(add-to-list 'load-path "/home/xuyang/chinese-pyim-greatdict")
-
-
-
 
 ;输入法
 (add-to-list 'load-path "~/local/share/emacs/site-lisp/eim")
@@ -118,7 +113,7 @@
 
 ;;(global-set-key (kbd "C-c C-m") 'paste-lines)
   
-(defun commet-hole-line (&optional arg)
+(defun comment-whole-line (&optional arg)
   "comment the line"
   (interactive "P")
   (let ((beg (line-beginning-position))
@@ -155,14 +150,74 @@
 (global-set-key (kbd "C-c l") 'copy-line)
 (global-set-key (kbd "C-c w") 'copy-word)
 (global-set-key (kbd "C-c p") 'copy-paragraph)
-(global-set-key (kbd "C-c c") 'commet-hole-line)
+(global-set-key (kbd "C-c c") 'comment-whole-line)
+(global-set-key (kbd "C-c t") (kbd "C-d /"))
 
 (global-set-key (kbd "C-z") 'evil-mode)
 
 (add-to-list 'auto-mode-alist '("\\.elisp\\'" . emacs-lisp-mode))
 (add-to-list 'auto-mode-alist '("\\.lisp\\'" . slime))
 
+(setq org-confirm-babel-evaluate nil)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (R . t)
+   (python . t)
+   (latex . t)
+   (ditaa . t)
+   ))
+
+(require 'ox-latex)
+
+(add-hook 'org-mode-hook (lambda () 
+(add-to-list 'org-latex-classes
+          '("ctexart"
+             "\\documentclass{ctexart}"
+	     ;"[NO-PACKAGES]"
+             ("\\section{%s}" . "\\section*{%s}")
+             ("\\subsection{%s}" . "\\subsection*{%s}")
+             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+             ("\\paragraph{%s}" . "\\paragraph*{%s}")
+             ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))))
+
+(setq org-publish-project-alist
+      '(("org"
+	 :base-directory "~/blog"
+	 :base-extension "org"
+      	 :publishing-directory "~/blog/html"
+	 :section-numbers t
+	 :with-toc t
+	 :body-only t
+	 :publishing-function org-html-publish-to-html
+	 )
+
+	("images"
+	 :base-directory "~/blog/rfigures"
+	 :base-extension "png"
+	 :publishing-directory "~/blog/rfigures"
+	 :publishing-function org-publish-attachment)
+	))
+
+
+
+
 ;;for translation
 (load "~/emacs_config/translation.elisp")
 
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-latex-pdf-process
+   (quote
+    ("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
