@@ -175,12 +175,21 @@
 (add-to-list 'org-latex-classes
           '("ctexart"
              "\\documentclass{ctexart}"
-	     ;"[NO-PACKAGES]"
              ("\\section{%s}" . "\\section*{%s}")
              ("\\subsection{%s}" . "\\subsection*{%s}")
              ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
              ("\\paragraph{%s}" . "\\paragraph*{%s}")
-             ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))))
+             ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+	  
+(add-to-list 'org-latex-classes
+          '("ctexbook"
+             "\\documentclass{ctexbook}"
+             ("\\section{%s}" . "\\section*{%s}")
+             ("\\subsection{%s}" . "\\subsection*{%s}")
+             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+             ("\\paragraph{%s}" . "\\paragraph*{%s}")
+             ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+	  )))
 
 (setq org-publish-project-alist
       '(("org"
@@ -200,7 +209,22 @@
 	 :publishing-function org-publish-attachment)
 	))
 
+(setq org-export-default-language "zh-CN")
 
+;generate the html for the org blog
+(fset 'gen-html
+      (lambda (&optional arg)
+	"Keyboard macro."
+	(interactive "p")
+	(kmacro-exec-ring-item (quote ("Pf" 0 "%d")) arg)))
+
+;sync the blog to wp.bagualu.net
+;working in the folder ~/blog
+(fset 'pub-html
+      (lambda (&optional arg)
+	"Keyboard macro. call the ~/blog/msync.sh"
+	(interactive "p")
+	(kmacro-exec-ring-item (quote ([134217761 46 47 109 115 121 110 99 46 115 104 return] 0 "%d")) arg)))
 
 
 ;;for translation
@@ -212,6 +236,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("~/tasks/todos.org")))
  '(org-latex-pdf-process
    (quote
     ("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))))
