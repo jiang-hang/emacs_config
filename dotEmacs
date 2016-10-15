@@ -182,14 +182,16 @@
              ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 	  
 (add-to-list 'org-latex-classes
-          '("ctexbook"
-             "\\documentclass{ctexbook}"
-             ("\\section{%s}" . "\\section*{%s}")
-             ("\\subsection{%s}" . "\\subsection*{%s}")
-             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-             ("\\paragraph{%s}" . "\\paragraph*{%s}")
-             ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
-	  )))
+	     '("ctexbook"
+	       "\\documentclass{ctexbook}"
+	       ;("\\part{%s}" . "\\part*{%s}")
+	       ("\\chapter{%s}" . "\\chapter*{%s}")
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ))))
+
 
 (setq org-publish-project-alist
       '(("org"
