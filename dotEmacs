@@ -9,6 +9,16 @@
 (add-to-list `load-path "~/.emacs.d/evil-20160619.2253")
 (require `evil)
 
+(add-to-list `load-path "/home/xuyang/org-screenshot")
+(require 'org-attach-screenshot)
+(setq org-startup-with-inline-images 'inlineimages)
+(setq org-attach-screenshot-dirfunction
+      (lambda () 
+	(progn (assert (buffer-file-name))
+	       (concat default-directory "rfigures"))))
+;	       (concat (file-name-sans-extension (buffer-file-name))
+;		       "_att"))))
+
 (setf eww-search-prefix "http://www.ask.com/web?qsrc=0&o=0&l=dir&qo=homepageSearchBox&q=")
 
 (show-paren-mode 1)
@@ -75,6 +85,99 @@
 (setq markdown-command "pandoc")
 
 (setq yank-pop-change-selection t)
+
+
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+(require 'mu4e)
+(require 'smtpmail)
+
+(setq mu4e-update-interval 300)
+
+(defvar my-mu4e-account-alist
+  '(("Gmail"
+     (mu4e-maildir "~/Maildir")
+     (user-mail-address "jianghang@bagualu.net")
+     (smtpmail-smtp-user "jianghang@bagualu.net")
+     )
+    ("xhyang"
+     (mu4e-maildir "~/MaildirXhyang")
+     (user-mail-address "xhyang@bagualu.net")
+     (smtpmail-smtp-user "xhyang@bagualu.net")
+     )))
+
+;set in the my-mu4e-account-alist
+(setq mu4e-drafts-folder "/drafts")
+(setq mu4e-sent-folder   "/sent")
+(setq mu4e-trash-folder  "/trash")
+(setq mu4e-refile-folder  "/archive")
+
+;; don't save message to Sent Messages, Gmail/IMAP takes care of this
+;(setq mu4e-sent-messages-behavior 'delete)
+
+;; (See the documentation for `mu4e-sent-messages-behavior' if you have
+;; additional non-Gmail addresses and want assign them different
+;; behavior.)
+
+;; setup some handy shortcuts
+;; you can quickly switch to your Inbox -- press ``ji''
+;; then, when you want archive some messages, move them to
+;; the 'All Mail' folder by pressing ``ma''.
+
+(setq mu4e-maildir-shortcuts
+    '( ("/INBOX"               . ?i)
+       ("/sent"   . ?s)
+       ("/trash"       . ?t)
+       ("/draft"    . ?d)
+       ))
+
+;; allow for updating mail using 'U' in the main view:
+(setq mu4e-get-mail-command "offlineimap")
+
+;; something about ourselves
+(setq
+   ;user-mail-address "jianghang@bagualu.net"
+   user-full-name  "杨学辉"
+   mu4e-compose-signature
+    (concat
+      "杨学辉\n"
+      "http://www.bagualu.net\n"))
+
+;; sending mail -- replace USERNAME with your gmail username
+;; also, make sure the gnutls command line utils are installed
+;; package 'gnutls-bin' in Debian/Ubuntu
+
+;; alternatively, for emacs-24 you can use:
+(setq message-send-mail-function 'smtpmail-send-it
+     smtpmail-stream-type 'ssl
+     smtpmail-default-smtp-server "smtp.ym.163.com"
+     smtpmail-smtp-server "smtp.ym.163.com"
+     smtpmail-smtp-service 994)
+
+;; don't keep message buffers around
+(setq message-kill-buffer-on-exit t)
+
+(defun my-mu4e-set-account ()
+  "Set the account for composing a message."
+  (interactive)
+  (let* ((account
+          (if mu4e-compose-parent-message
+              (let ((maildir (mu4e-message-field mu4e-compose-parent-message :maildir)))
+                (string-match "/\\(.*?\\)/" maildir)
+                (match-string 1 maildir))
+            (completing-read (format "Compose with account: (%s) "
+                                     (mapconcat #'(lambda (var) (car var))
+                                                my-mu4e-account-alist "/"))
+                             (mapcar #'(lambda (var) (car var)) my-mu4e-account-alist)
+                             nil t nil nil (caar my-mu4e-account-alist))))
+         (account-vars (cdr (assoc account my-mu4e-account-alist))))
+    (if account-vars
+        (mapc #'(lambda (var)
+                  (set (car var) (cadr var)))
+              account-vars)
+      (error "No email account found"))))
+
+(add-hook 'mu4e-main-mode-hook 'my-mu4e-set-account)
+
 
 ;;my global key binding
 ;;duplicate the line
@@ -150,7 +253,9 @@
 (global-set-key (kbd "C-c l") 'copy-line)
 (global-set-key (kbd "C-c w") 'copy-word)
 (global-set-key (kbd "C-c p") 'copy-paragraph)
-(global-set-key (kbd "C-c c") 'comment-whole-line)
+					; C-cc is for og-capture
+					;(global-set-key (kbd "C-c c") 'comment-whole-line)
+
 (global-set-key (kbd "C-c t") (kbd "C-d /"))
 
 (global-set-key (kbd "C-z") 'evil-mode)
@@ -170,27 +275,33 @@
    ))
 
 (require 'ox-latex)
+(require 'ox-html)
+
+(setq org-html-table-default-attributes
+      (list  :border "2" :rules "all" :frame "border"
+	     :align "center"
+	     :cellspacing "0"
+	     :cellpadding "6"))
+(setq org-html-table-caption-above nil)
 
 (add-hook 'org-mode-hook (lambda () 
-(add-to-list 'org-latex-classes
-          '("ctexart"
-             "\\documentclass{ctexart}"
-             ("\\section{%s}" . "\\section*{%s}")
-             ("\\subsection{%s}" . "\\subsection*{%s}")
-             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-             ("\\paragraph{%s}" . "\\paragraph*{%s}")
-             ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-	  
-(add-to-list 'org-latex-classes
-	     '("ctexbook"
-	       "\\documentclass{ctexbook}"
-	       ;("\\part{%s}" . "\\part*{%s}")
-	       ("\\chapter{%s}" . "\\chapter*{%s}")
-	       ("\\section{%s}" . "\\section*{%s}")
-	       ("\\subsection{%s}" . "\\subsection*{%s}")
-	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-               ("\\paragraph{%s}" . "\\paragraph*{%s}")
-               ))))
+			   (add-to-list 'org-latex-classes
+					'("ctexart"
+					  "\\documentclass{ctexart}"
+					  ("\\section{%s}" . "\\section*{%s}")
+					  ("\\subsection{%s}" . "\\subsection*{%s}")
+					  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+					  ("\\paragraph{%s}" . "\\paragraph*{%s}")
+					  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+			   (add-to-list 'org-latex-classes
+					'("ctexbook"
+					  "\\documentclass{ctexbook}"
+					  ("\\part{%s}" . "\\part*{%s}")
+					  ("\\chapter{%s}" . "\\chapter*{%s}")
+					  ("\\section{%s}" . "\\section*{%s}")
+					  ("\\subsection{%s}" . "\\subsection*{%s}")
+					  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+					  ))))
 
 
 (setq org-publish-project-alist
@@ -213,6 +324,18 @@
 
 (setq org-export-default-language "zh-CN")
 
+;;org-capture
+
+(define-key  global-map "\C-cc" 'org-capture)
+(setq org-capture-templates
+      '(("e" "emacsbook-header" entry (file "~/org/emacsbook.org")
+	 "* %i\n")
+	("b" "emacsbook-body" plain (file "~/org/emacsbook.org")
+	 "#+INCLUDE: %c.org :minlevel 1")))
+
+
+
+
 ;generate the html for the org blog
 (fset 'gen-html
       (lambda (&optional arg)
@@ -229,22 +352,26 @@
 	(kmacro-exec-ring-item (quote ([134217761 46 47 109 115 121 110 99 46 115 104 return] 0 "%d")) arg)))
 
 
+(fset 'apub-html
+      (lambda (&optional arg) "Keyboard macro."
+	(interactive "p")
+	(kmacro-exec-ring-item (quote ([134217848 103 101 110 45 104 116 109 108 return 134217848 112 117 98 45 104 116 109 108 return] 0 "%d")) arg)))
+
+
+
 ;;for translation
 (load "~/emacs_config/translation.elisp")
 
+(setq org-export-with-sub-superscripts '{})
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(inhibit-startup-screen t)
  '(org-agenda-files (quote ("~/tasks/todos.org")))
  '(org-latex-pdf-process
    (quote
-    ("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
+    ("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f")))
  )

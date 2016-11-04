@@ -27,6 +27,19 @@
 		       "))\n"))
     (write-region outstring nil filename)))
     
+;dump transet as md file
+(defun dump-trans-set (file)
+  (interactive (list (read-file-name "dump transet file: " nil nil)))
+  (let ((outstring "")
+        (dump-file (expand-file-name file))
+	)
+    (dolist (it *trans-set*)
+      (setf outstring
+	    (concatenate 'string outstring
+			 (car it) "\t"
+			 (cdr it) "\n")))
+    (write-region outstring nil dump-file)))
+
 
 ;使用方法
 ;1. 不加参数，直接C-o ，对当前行进行替换
